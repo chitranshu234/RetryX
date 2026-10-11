@@ -29,7 +29,7 @@ class AesGcmSecretCipherTest {
     @Test
     @DisplayName("round-trips a secret")
     void roundTrip() {
-        String secret = "whsec_abcdefghijklmnopqrstuvwxyz";
+        String secret = "mock_test_secret_sample";
 
         assertThat(cipher.decrypt(cipher.encrypt(secret))).isEqualTo(secret);
     }
