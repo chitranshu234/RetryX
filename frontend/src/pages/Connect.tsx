@@ -3,6 +3,7 @@ import { api, apiKeyStore } from '../lib/api'
 import { PrimaryButton } from '../components/Primitives'
 import { ThemeToggle } from '../components/ThemeToggle'
 import { Footer } from '../components/Footer'
+import { Logo } from '../components/Logo'
 
 /** The key seeded by `docker compose up`, offered so the demo is one click rather than a hunt. */
 const DEMO_KEY = 'rtx_sk_demo_0000000000000000000000'
@@ -58,7 +59,7 @@ export function Connect({ onConnected }: { onConnected: () => void }) {
       <div className="flex flex-1 items-center justify-center px-6 pb-12">
         <div className="w-full max-w-[420px]">
           <div className="mb-7 flex flex-col items-start gap-3">
-            <img src="/logo.png" alt="RetryX" className="h-14 w-full max-w-[340px] object-contain drop-shadow-sm" />
+            <Logo className="h-14 w-full max-w-[340px] object-contain drop-shadow-sm" />
             <p className="text-[13px] text-dim">
               Your events, delivered to the URLs you register — and retried until they arrive.
             </p>

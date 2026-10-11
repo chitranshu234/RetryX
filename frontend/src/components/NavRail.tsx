@@ -4,6 +4,7 @@ import type { ReactNode } from 'react'
 import { api, apiKeyStore } from '../lib/api'
 import { count, duration } from '../lib/format'
 import { ThemeToggle } from './ThemeToggle'
+import { Logo } from './Logo'
 
 /**
  * The navigation rail.
@@ -44,11 +45,7 @@ export function NavRail({ onDisconnect }: { onDisconnect: () => void }) {
 function Brand() {
   return (
     <div className="flex items-center justify-center border-b border-line px-3 py-3.5">
-      <img
-        src="/logo.png"
-        alt="RetryX"
-        className="h-11 w-full object-contain drop-shadow-sm"
-      />
+      <Logo className="h-11 w-full object-contain drop-shadow-sm" />
     </div>
   )
 }

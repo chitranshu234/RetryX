@@ -249,3 +249,21 @@
     transition-duration: 0.001ms !important;
   }
 }
+
+/* Logo theme switching */
+[data-theme='light'] .rx-logo-light {
+  display: block;
+}
+[data-theme='light'] .rx-logo-dark {
+  display: none !important;
+}
+
+[data-theme='dark'] .rx-logo-light,
+:root:not([data-theme='light']) .rx-logo-light {
+  display: none !important;
+}
+[data-theme='dark'] .rx-logo-dark,
+:root:not([data-theme='light']) .rx-logo-dark {
+  display: block;
+}
+
