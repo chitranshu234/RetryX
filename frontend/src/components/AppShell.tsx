@@ -28,26 +28,26 @@ export function AppShell({
   onDisconnect: () => void
 }) {
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-bg">
-      <div className="flex min-h-0 flex-1 overflow-hidden">
-        <NavRail onDisconnect={onDisconnect} />
+    <div className="flex h-screen overflow-hidden bg-bg">
+      <NavRail onDisconnect={onDisconnect} />
 
-        <main className="flex min-w-0 flex-1 flex-col overflow-y-auto">
-          <header className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-3.5">
-            <div className="min-w-0">
-              <h1 className="truncate text-[17px] font-semibold tracking-tight">{title}</h1>
-              {subtitle && <p className="mt-0.5 text-[12.5px] text-dim">{subtitle}</p>}
-            </div>
-            {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
-          </header>
-
-          <div className="flex-1 pb-6">
-            {children}
+      <main className="flex min-w-0 flex-1 flex-col overflow-y-auto">
+        <header className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-3.5">
+          <div className="min-w-0">
+            <h1 className="truncate text-[17px] font-semibold tracking-tight">{title}</h1>
+            {subtitle && <p className="mt-0.5 text-[12.5px] text-dim">{subtitle}</p>}
           </div>
-        </main>
-      </div>
+          {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
+        </header>
 
-      <Footer />
+        <div className="flex-1">
+          {children}
+        </div>
+
+        <div className="px-5 pb-6">
+          <Footer />
+        </div>
+      </main>
     </div>
   )
 }

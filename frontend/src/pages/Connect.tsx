@@ -119,7 +119,9 @@ export function Connect({ onConnected }: { onConnected: () => void }) {
         </div>
       </div>
 
-      <Footer />
+      <div className="mx-auto w-full max-w-[640px] px-6 pb-6">
+        <Footer />
+      </div>
     </div>
   )
 }
