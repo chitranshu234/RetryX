@@ -11,8 +11,7 @@ that gave up.
 No message broker. PostgreSQL *is* the queue.
 
 [Quick start](#quick-start) · [How it works](#how-it-works) · [API](#api) ·
-[Receiving webhooks](#receiving-webhooks) · [Measured performance](#measured-performance) ·
-[Developer guide](DEVELOPER.md)
+[Receiving webhooks](#receiving-webhooks) · [Measured performance](#measured-performance)
 
 </div>
 
@@ -343,13 +342,8 @@ Deliberately out of scope, so the parts that are here could be done properly:
 - **Prometheus dashboards** — counters are exposed at `/actuator/metrics`, but nothing scrapes them
 - **A message broker** — and at this scale, nothing is missing without one
 
-The reasoning behind each, and what adding it would involve, is in
-[DEVELOPER.md](DEVELOPER.md#what-is-deliberately-missing).
+## Database Schema
 
-## Documentation
-
-- **[DEVELOPER.md](DEVELOPER.md)** — architecture, every file and function, configuration reference,
-  the failure modes, and the design decisions with their trade-offs
 - **[backend/src/main/resources/db/migration/V1__initial_schema.sql](backend/src/main/resources/db/migration/V1__initial_schema.sql)**
   — the five tables, annotated
 
