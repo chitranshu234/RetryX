@@ -46,3 +46,6 @@ yarn-error.log*
 # ---- Load test output ----
 load/results/
 *.k6-summary.json
+
+# ---- Embedded Database Runtime Data ----
+scripts/embedded-pg/data/
