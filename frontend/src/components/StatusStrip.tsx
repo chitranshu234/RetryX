@@ -19,7 +19,7 @@ export function StatusStrip({ stats }: { stats: Stats }) {
     stats.successRate >= 99 ? 'text-emerald' : stats.successRate >= 90 ? 'text-amber' : 'text-rose'
 
   return (
-    <section className="flex flex-wrap border-b border-line">
+    <section className="grid grid-cols-2 border-b border-line sm:grid-cols-3 lg:grid-cols-6">
       <Figure
         label="Delivered"
         value={count(stats.delivered)}
@@ -58,16 +58,17 @@ function Figure({
   emphasis?: boolean
 }) {
   return (
-    <div className="min-w-[132px] flex-1 border-r border-line-soft px-5 py-3.5 last:border-r-0">
-      <div className="text-[12px] text-mute">{label}</div>
+    <div className="border-b border-r border-line-soft px-3.5 py-3 sm:px-5 sm:py-3.5 lg:border-b-0 last:border-r-0">
+      <div className="text-[11.5px] sm:text-[12px] text-mute">{label}</div>
       <div
         className={`tabular mt-1 leading-none tracking-tight ${
-          emphasis ? 'text-[28px] font-semibold' : 'text-[22px] font-medium'
+          emphasis ? 'text-[22px] sm:text-[28px] font-semibold' : 'text-[19px] sm:text-[22px] font-medium'
         } ${tone ?? 'text-ink'}`}
       >
         {value}
       </div>
-      {hint && <div className="mt-1 text-[11.5px] text-mute">{hint}</div>}
+      {hint && <div className="mt-1 truncate text-[11px] sm:text-[11.5px] text-mute">{hint}</div>}
     </div>
   )
 }
+

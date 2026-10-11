@@ -22,15 +22,15 @@ export function Footer() {
   }
 
   return (
-    <footer className="mt-8 rounded-lg border border-line bg-surface p-4 font-mono text-[13px] text-ink shadow-sm transition-colors">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2 text-ink">
+    <footer className="mt-8 rounded-lg border border-line bg-surface p-4 font-mono text-[12.5px] sm:text-[13px] text-ink shadow-sm transition-colors">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-wrap items-center gap-2 text-ink">
           <span className="font-medium text-amber">retryx</span>
           <span className="text-dim">·</span>
           <span className="text-dim">Webhooks that never give up.</span>
         </div>
 
-        <div className="flex items-center gap-5 text-dim">
+        <div className="flex flex-wrap items-center gap-4 sm:gap-5 text-dim">
           <a
             href="https://github.com/chitranshu234/RetryX#readme"
             target="_blank"
@@ -61,8 +61,8 @@ export function Footer() {
 
       <div className="my-3 border-t border-line/80" />
 
-      <div className="flex items-center justify-between text-dim">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between text-dim">
+        <div className="flex flex-wrap items-center gap-2">
           <span>© 2026 RetryX</span>
           <span>·</span>
           <span>Built by</span>

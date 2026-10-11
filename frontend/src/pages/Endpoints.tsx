@@ -58,7 +58,7 @@ export function Endpoints({ onDisconnect }: { onDisconnect: () => void }) {
         />
       )}
 
-      <section className="px-5 py-4">
+      <section className="px-4 py-4 sm:px-5">
         {endpoints.isError ? (
           <ErrorState error={endpoints.error} retry={() => void endpoints.refetch()} />
         ) : endpoints.isLoading ? (
@@ -135,7 +135,7 @@ function EndpointRow({
           </dl>
         </div>
 
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 sm:shrink-0">
           <GhostButton onClick={onToggle} disabled={busy}>
             {endpoint.active ? 'Disable' : 'Enable'}
           </GhostButton>

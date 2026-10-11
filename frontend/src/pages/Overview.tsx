@@ -69,7 +69,7 @@ export function Overview({ onDisconnect }: { onDisconnect: () => void }) {
         </div>
       )}
 
-      <section className="px-5 py-4">
+      <section className="px-4 py-4 sm:px-5">
         <div className="mb-3 flex flex-wrap items-baseline justify-between gap-3">
           <h2 className="text-[15px]">Needs attention</h2>
           {failed.length > 0 && (
@@ -83,8 +83,9 @@ export function Overview({ onDisconnect }: { onDisconnect: () => void }) {
           )}
         </div>
 
-        <div className="overflow-hidden rounded-lg border border-line">
-          <table className="w-full text-left">
+        <div className="overflow-x-auto rounded-lg border border-line">
+          <table className="w-full min-w-[620px] text-left">
+
             <thead>
               <tr className="border-b border-line bg-surface text-[12px] text-mute">
                 <th className="px-4 py-2 font-normal">Event</th>

@@ -106,22 +106,26 @@ export function Deliveries({ onDisconnect }: { onDisconnect: () => void }) {
     >
       {/* Controls: one band, hairline-separated from the table. The view switch and the status
           filter sit together because they are the same kind of decision — what am I looking at. */}
-      <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-b border-line px-5 py-2.5">
-        <Segmented
-          options={[
-            { value: 'deliveries', label: 'Deliveries' },
-            { value: 'events', label: 'Events' },
-          ]}
-          value={view}
-          onChange={(next) => {
-            setView(next as 'deliveries' | 'events')
-            setPage(0)
-            setSelected(new Set())
-          }}
-        />
+      <div className="flex flex-wrap items-center justify-between gap-x-5 gap-y-2 border-b border-line px-4 py-2.5 sm:px-5">
+        <div className="flex items-center gap-3">
+          <Segmented
+            options={[
+              { value: 'deliveries', label: 'Deliveries' },
+              { value: 'events', label: 'Events' },
+            ]}
+            value={view}
+            onChange={(next) => {
+              setView(next as 'deliveries' | 'events')
+              setPage(0)
+              setSelected(new Set())
+            }}
+          />
+        </div>
+
+        <span className="tabular text-[12.5px] text-mute">{count(total)} total</span>
 
         {view === 'deliveries' && (
-          <div className="flex items-center gap-1">
+          <div className="flex w-full items-center gap-1 overflow-x-auto pb-1 pt-0.5 md:w-auto md:pb-0 md:pt-0">
             {FILTERS.map((filter) => {
               const isActive = filter.value === status
               const tone = filter.value ? STATUS_PRESENTATION[filter.value] : null
@@ -134,7 +138,7 @@ export function Deliveries({ onDisconnect }: { onDisconnect: () => void }) {
                     setStatus(filter.value)
                     setPage(0)
                   }}
-                  className={`flex items-center gap-1.5 rounded px-2 py-1 text-[12.5px] transition-colors ${
+                  className={`flex shrink-0 items-center gap-1.5 rounded px-2.5 py-1 text-[12px] sm:text-[12.5px] transition-colors ${
                     isActive ? 'bg-surface-2 text-ink' : 'text-dim hover:bg-surface-2 hover:text-ink'
                   }`}
                 >
@@ -145,11 +149,10 @@ export function Deliveries({ onDisconnect }: { onDisconnect: () => void }) {
             })}
           </div>
         )}
-
-        <span className="ml-auto tabular text-[12.5px] text-mute">{count(total)} total</span>
       </div>
 
-      <section className="min-w-0 flex-1 px-5 py-4">
+      <section className="min-w-0 flex-1 px-4 py-4 sm:px-5">
+
         {activeIsError ? (
           <ErrorState error={activeError} retry={refetchActive} />
         ) : (

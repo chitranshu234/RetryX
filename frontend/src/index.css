@@ -267,3 +267,13 @@
   display: block;
 }
 
+/* Utility to hide scrollbar on horizontally scrollable filters while keeping touch scroll */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+

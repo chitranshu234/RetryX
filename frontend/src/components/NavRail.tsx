@@ -15,15 +15,23 @@ import { Logo } from './Logo'
  * overview. Putting them in the chrome means they are always in peripheral vision — the way a
  * readout on a piece of equipment is — rather than something you navigate to.
  */
-export function NavRail({ onDisconnect }: { onDisconnect: () => void }) {
+export function NavRail({
+  onDisconnect,
+  onClose,
+  className = '',
+}: {
+  onDisconnect: () => void
+  onClose?: () => void
+  className?: string
+}) {
   return (
-    <nav className="flex w-[236px] shrink-0 flex-col border-r border-line bg-surface">
-      <Brand />
+    <nav className={`w-[236px] shrink-0 flex-col border-r border-line bg-surface ${className}`}>
+      <Brand onClose={onClose} />
 
-      <div className="flex flex-1 flex-col gap-0.5 px-2 py-3">
-        <RailLink to="/" label="Overview" icon={<IconGauge />} />
-        <RailLink to="/deliveries" label="Deliveries" icon={<IconStream />} />
-        <RailLink to="/endpoints" label="Endpoints" icon={<IconTarget />} />
+      <div className="flex flex-1 flex-col gap-0.5 px-2 py-3 overflow-y-auto">
+        <RailLink to="/" label="Overview" icon={<IconGauge />} onClick={onClose} />
+        <RailLink to="/deliveries" label="Deliveries" icon={<IconStream />} onClick={onClose} />
+        <RailLink to="/endpoints" label="Endpoints" icon={<IconTarget />} onClick={onClose} />
       </div>
 
       <QueueTelemetry />
@@ -31,7 +39,10 @@ export function NavRail({ onDisconnect }: { onDisconnect: () => void }) {
       <div className="flex items-center justify-between border-t border-line px-3 py-2">
         <button
           type="button"
-          onClick={onDisconnect}
+          onClick={() => {
+            onClose?.()
+            onDisconnect()
+          }}
           className="rounded px-1.5 py-1 text-[12.5px] text-mute transition-colors hover:bg-surface-2 hover:text-ink"
         >
           Disconnect
@@ -42,19 +53,42 @@ export function NavRail({ onDisconnect }: { onDisconnect: () => void }) {
   )
 }
 
-function Brand() {
+function Brand({ onClose }: { onClose?: () => void }) {
   return (
-    <div className="flex items-center justify-center border-b border-line px-3 py-3.5">
-      <Logo className="h-11 w-full object-contain drop-shadow-sm" />
+    <div className="flex items-center justify-between border-b border-line px-3 py-3.5">
+      <div className="flex flex-1 items-center justify-center">
+        <Logo className="h-10 w-full object-contain drop-shadow-sm" />
+      </div>
+      {onClose && (
+        <button
+          type="button"
+          onClick={onClose}
+          className="ml-2 grid size-7 place-items-center rounded text-mute transition-colors hover:bg-surface-2 hover:text-ink md:hidden"
+          aria-label="Close navigation"
+        >
+          <IconClose />
+        </button>
+      )}
     </div>
   )
 }
 
-function RailLink({ to, label, icon }: { to: string; label: string; icon: ReactNode }) {
+function RailLink({
+  to,
+  label,
+  icon,
+  onClick,
+}: {
+  to: string
+  label: string
+  icon: ReactNode
+  onClick?: () => void
+}) {
   return (
     <NavLink
       to={to}
       end={to === '/'}
+      onClick={onClick}
       className={({ isActive }) =>
         `flex items-center gap-2.5 rounded px-2.5 py-2 text-[13.5px] transition-colors ${
           isActive
@@ -132,6 +166,22 @@ function Readout({ label, value, tone }: { label: string; value: string; tone?: 
 
 /* Icons: drawn inline at 18px on a 20px grid so stroke weights match the type. */
 
+export function IconMenu() {
+  return (
+    <svg viewBox="0 0 20 20" className="size-5" fill="none" stroke="currentColor" strokeWidth="1.7">
+      <path d="M3 5h14M3 10h14M3 15h14" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+export function IconClose() {
+  return (
+    <svg viewBox="0 0 20 20" className="size-5" fill="none" stroke="currentColor" strokeWidth="1.7">
+      <path d="m4.5 4.5 11 11M15.5 4.5l-11 11" strokeLinecap="round" />
+    </svg>
+  )
+}
+
 function IconGauge() {
   return (
     <svg viewBox="0 0 20 20" className="size-[18px]" fill="none" stroke="currentColor" strokeWidth="1.6">
@@ -159,3 +209,4 @@ function IconTarget() {
     </svg>
   )
 }
+
