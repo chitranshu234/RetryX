@@ -16,7 +16,7 @@ import { ThemeToggle } from './ThemeToggle'
  */
 export function NavRail({ onDisconnect }: { onDisconnect: () => void }) {
   return (
-    <nav className="flex w-[216px] shrink-0 flex-col border-r border-line bg-surface">
+    <nav className="flex w-[236px] shrink-0 flex-col border-r border-line bg-surface">
       <Brand />
 
       <div className="flex flex-1 flex-col gap-0.5 px-2 py-3">
@@ -43,11 +43,11 @@ export function NavRail({ onDisconnect }: { onDisconnect: () => void }) {
 
 function Brand() {
   return (
-    <div className="flex items-center border-b border-line px-4 py-3">
+    <div className="flex items-center justify-center border-b border-line px-3 py-3.5">
       <img
         src="/logo.png"
         alt="RetryX"
-        className="h-8 w-auto max-w-full object-contain"
+        className="h-11 w-full object-contain drop-shadow-sm"
       />
     </div>
   )

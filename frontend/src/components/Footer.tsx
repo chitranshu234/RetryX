@@ -4,9 +4,9 @@ export function Footer() {
   const [copied, setCopied] = useState(false)
   const [authorName, setAuthorName] = useState(() => {
     try {
-      return localStorage.getItem('retryx.author') || '[Your Name]'
+      return localStorage.getItem('retryx.author') || 'Chitranshu Pandey'
     } catch {
-      return '[Your Name]'
+      return 'Chitranshu Pandey'
     }
   })
   const [isEditing, setIsEditing] = useState(false)
@@ -19,7 +19,7 @@ export function Footer() {
   }
 
   const handleAuthorSave = (name: string) => {
-    const trimmed = name.trim() || '[Your Name]'
+    const trimmed = name.trim() || 'Chitranshu Pandey'
     setAuthorName(trimmed)
     setIsEditing(false)
     try {
@@ -30,10 +30,10 @@ export function Footer() {
   }
 
   return (
-    <footer className="mt-8 rounded-lg border border-line bg-surface p-4 font-mono text-[13px] text-ink shadow-sm transition-colors">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+    <footer className="w-full border-t border-line bg-surface px-6 py-3 font-mono text-[13px] text-ink shadow-sm transition-colors shrink-0">
+      <div className="mx-auto flex w-full flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2 text-ink">
-          <span className="font-medium text-amber">retryx</span>
+          <span className="font-semibold text-amber">retryx</span>
           <span className="text-dim">·</span>
           <span className="text-dim">Webhooks that never give up.</span>
         </div>
@@ -92,9 +92,9 @@ export function Footer() {
         </div>
       </div>
 
-      <div className="my-3 border-t border-line/80" />
+      <div className="my-2.5 w-full border-t border-line/70" />
 
-      <div className="flex items-center justify-between text-dim">
+      <div className="mx-auto flex w-full items-center justify-between text-dim">
         <div className="flex items-center gap-2">
           <span>© 2026 RetryX</span>
           <span>·</span>
@@ -103,8 +103,8 @@ export function Footer() {
             <input
               type="text"
               autoFocus
-              defaultValue={authorName === '[Your Name]' ? '' : authorName}
-              placeholder="Your Name"
+              defaultValue={authorName}
+              placeholder="Chitranshu Pandey"
               onBlur={(e) => handleAuthorSave(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') handleAuthorSave((e.target as HTMLInputElement).value)
@@ -116,7 +116,7 @@ export function Footer() {
             <span
               onClick={() => setIsEditing(true)}
               title="Click to edit name"
-              className="cursor-pointer text-ink hover:text-amber hover:underline"
+              className="cursor-pointer font-medium text-ink hover:text-amber hover:underline"
             >
               {authorName}
             </span>

@@ -58,7 +58,7 @@ export function Connect({ onConnected }: { onConnected: () => void }) {
       <div className="flex flex-1 items-center justify-center px-6 pb-12">
         <div className="w-full max-w-[420px]">
           <div className="mb-7 flex flex-col items-start gap-3">
-            <img src="/logo.png" alt="RetryX" className="h-10 w-auto object-contain" />
+            <img src="/logo.png" alt="RetryX" className="h-14 w-full max-w-[340px] object-contain drop-shadow-sm" />
             <p className="text-[13px] text-dim">
               Your events, delivered to the URLs you register — and retried until they arrive.
             </p>
@@ -119,9 +119,7 @@ export function Connect({ onConnected }: { onConnected: () => void }) {
         </div>
       </div>
 
-      <div className="mx-auto w-full max-w-[640px] px-6 pb-6">
-        <Footer />
-      </div>
+      <Footer />
     </div>
   )
 }
