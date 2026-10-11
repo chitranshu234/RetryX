@@ -134,6 +134,11 @@ cd backend && mvn spring-boot:run
 cd frontend && npm run dev
 ```
 
+> **Windows without Docker:** You can launch all four components (embedded PostgreSQL on `:5432`, reference receiver on `:9090`, backend API on `:8080`, and frontend dev server on `:5173`) in one go by running:
+> ```cmd
+> scripts\start-all.bat
+> ```
+
 The dashboard comes up on **http://localhost:5173** and proxies `/api` to the backend on `:8080`, so
 the browser only ever talks to one origin — the same shape as production.
 
@@ -145,6 +150,7 @@ cd backend && RETRYX_PORT=8081 RETRYX_WORKER_ID=local-worker-2 RETRYX_DEMO_ENABL
 
 > `make` wraps all of these — `make help` lists the targets. It isn't installed on Windows by
 > default, so the raw commands are above.
+
 
 ## How it works
 

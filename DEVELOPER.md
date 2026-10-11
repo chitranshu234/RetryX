@@ -47,6 +47,9 @@ make dashboard   # Vite dev server on :5173, proxying /api to :8080
 
 `make help` lists every target.
 
+On Windows without Docker, you can run `scripts\start-all.bat` to launch all services at once (embedded PostgreSQL on `:5432`, reference receiver on `:9090`, backend on `:8080`, and Vite dashboard on `:5173`).
+
+
 ### Tests
 
 ```bash
@@ -923,12 +926,19 @@ system and tell the caller nothing actionable.
   healthy system with a flaky receiver has a tall amber band *and* a high success rate, and folding
   them together hides exactly that.
 - **`StatusStrip.tsx`** — the KPI band. Hairline-separated segments, not cards: the figures are one
-  readout of one system, not separate things.
-- **`NavRail.tsx`** — navigation plus live queue telemetry pinned at the foot, so depth and oldest
-  wait are in peripheral vision on every page.
-- **`AppShell.tsx`**, **`Primitives.tsx`** (`Spinner`, `SkeletonRows`, `Empty`, `ErrorState`,
-  `PrimaryButton`, `GhostButton`), **`CopyButton.tsx`** (`CopyButton`, `IdChip`),
-  **`JsonViewer.tsx`**, **`ThemeToggle.tsx`**.
+  readout of one system, not separate things. Responsive grid (`grid-cols-2 sm:grid-cols-3 lg:grid-cols-6`)
+  for seamless layout across phones and desktop screens.
+- **`NavRail.tsx`** — desktop navigation rail and mobile drawer navigation with live queue telemetry
+  pinned at the foot, so queue depth and oldest wait are in peripheral vision on every page.
+- **`AppShell.tsx`** — the responsive page frame: fixed rail on desktop (`md:`), sleek top bar with
+  hamburger menu and backdrop slide-over drawer overlay on mobile screens.
+- **`Logo.tsx`** — theme-adaptive brand mark that switches between dark and light assets (`/logo.png`
+  vs `/logo-light.png`) based on `[data-theme]`.
+- **`Footer.tsx`** — responsive application footer with documentation links, health status endpoint,
+  and editable author attribution.
+- **`Primitives.tsx`** (`Spinner`, `SkeletonRows`, `Empty`, `ErrorState`, `PrimaryButton`, `GhostButton`),
+  **`CopyButton.tsx`** (`CopyButton`, `IdChip`), **`JsonViewer.tsx`**, **`ThemeToggle.tsx`**.
+
 
 #### `src/pages`
 - **`Connect.tsx`** — API key entry. Verifies before storing, so a bad key errors next to the field
