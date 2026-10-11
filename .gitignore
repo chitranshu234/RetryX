@@ -1,0 +1,48 @@
+# ---- Java / Maven ----
+target/
+*.class
+*.jar
+*.war
+!.mvn/wrapper/maven-wrapper.jar
+.mvn/timing.properties
+
+# ---- Node ----
+node_modules/
+dist/
+dist-ssr/
+.vite/
+*.local
+
+# ---- IDE ----
+.idea/
+*.iml
+*.iws
+.vscode/
+!.vscode/extensions.json
+.settings/
+.classpath
+.project
+*.swp
+
+# ---- OS ----
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---- Logs ----
+*.log
+logs/
+npm-debug.log*
+yarn-error.log*
+
+# ---- Secrets ----
+# The committed .env.example carries safe placeholders. A real .env never does.
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# ---- Load test output ----
+load/results/
+*.k6-summary.json

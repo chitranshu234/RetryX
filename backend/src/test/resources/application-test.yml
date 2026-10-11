@@ -1,0 +1,82 @@
+# ============================================================================
+#  Integration test configuration
+# ============================================================================
+#  The scheduler is pushed ten minutes out rather than disabled, so the worker
+#  and reaper beans still exist and tests can drive them one batch at a time by
+#  calling runOnce() / recoverOnce() directly.
+#
+#  Driving a queue from a real scheduler is how a test suite acquires
+#  intermittent failures: the assertion races the poll, passes locally, and
+#  fails in CI on a slower machine.
+# ============================================================================
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: none
+  flyway:
+    enabled: true
+
+retryx:
+  worker:
+    enabled: true
+    id: test-worker
+    initial-delay-ms: 600000
+    poll-interval-ms: 600000
+    batch-size: 50
+    concurrency: 8
+    lease-seconds: 60
+
+  reaper:
+    enabled: true
+    initial-delay-ms: 600000
+    interval-ms: 600000
+    batch-size: 500
+
+  retry:
+    max-attempts: 4
+    base-delay-seconds: 0
+    multiplier: 2.0
+    max-delay-seconds: 1
+    # Deterministic, so a test asserting "the retry is scheduled" does not also
+    # have to tolerate a random delay.
+    jitter: NONE
+
+  http:
+    connect-timeout-ms: 1000
+    read-timeout-ms: 2000
+    max-response-snippet-bytes: 2048
+    user-agent: Retryx/test
+
+  signing:
+    tolerance-seconds: 300
+
+  crypto:
+    # Overridden by AbstractIntegrationTest via @DynamicPropertySource, which
+    # computes the base64 in Java rather than trusting a literal typed by hand —
+    # a key that is one byte short fails at startup with a message about AES key
+    # lengths, which is a confusing way to learn you miscounted.
+    encryption-key: cmV0cnl4LXRlc3QtZW5jcnlwdGlvbi1rZXktMzJieXQ=
+
+  ssrf:
+    enabled: true
+    require-https: false
+    # WireMock binds a fixed port in these tests so it can be allowlisted here.
+    allowed-ports: 80,443,8080,8443,9090,9876,9877
+    allow-hosts: localhost,127.0.0.1
+
+  cors:
+    allowed-origins: http://localhost:5173
+
+  demo:
+    enabled: false
+    owner-id: test
+    api-key: rtx_sk_test_0000000000000000000000
+    receiver-base-url: http://localhost:9876
+    signing-secret: whsec_test_shared_secret
+
+logging:
+  level:
+    dev.retryx: INFO
+    org.testcontainers: WARN
+    com.github.dockerjava: WARN

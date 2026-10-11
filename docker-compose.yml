@@ -1,0 +1,129 @@
+# ============================================================================
+#  Retryx — one command to run everything
+# ============================================================================
+#  docker compose up --build
+#
+#    postgres   the database, which is also the queue
+#    api        REST API + a delivery worker
+#    worker     a SECOND delivery worker, no HTTP traffic
+#    receiver   reference receiver with failure injection
+#    dashboard  the React UI on http://localhost:5173
+#
+#  `worker` exists to make the SKIP LOCKED guarantee demonstrable rather than
+#  claimed: two processes poll the same deliveries table, and the receiver's
+#  /stats endpoint reports duplicateAttempts, which stays at zero.
+# ============================================================================
+
+name: retryx
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: retryx
+      POSTGRES_USER: retryx
+      POSTGRES_PASSWORD: retryx
+      # Pin the server's timezone. The stats queries truncate in UTC explicitly,
+      # but leaving the session default to chance makes every timestamp in logs
+      # depend on the host, which turns "when did this happen" into a puzzle.
+      TZ: UTC
+      PGTZ: UTC
+    ports:
+      - '5432:5432'
+    volumes:
+      - retryx-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      # The api container waits on this. Without it, Flyway races Postgres's
+      # startup and the first `docker compose up` on a clean volume fails about
+      # half the time — the classic "works on the second try" compose bug.
+      test: ['CMD-SHELL', 'pg_isready -U retryx -d retryx']
+      interval: 2s
+      timeout: 3s
+      retries: 20
+
+  receiver:
+    build:
+      context: ./receiver
+    environment:
+      RECEIVER_PORT: 9090
+      RECEIVER_SIGNING_SECRET: whsec_demo_only_shared_secret_change_me
+      # Raise this for load tests: RECEIVER_FAILURE_RATE=0.2
+      RECEIVER_FAILURE_RATE: '0.0'
+    ports:
+      - '9090:9090'
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://localhost:9090/health']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build:
+      context: ./backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+      receiver:
+        condition: service_started
+    environment:
+      RETRYX_DB_URL: jdbc:postgresql://postgres:5432/retryx
+      RETRYX_DB_USER: retryx
+      RETRYX_DB_PASSWORD: retryx
+      RETRYX_WORKER_ID: api-worker
+      RETRYX_DEMO_ENABLED: 'true'
+      RETRYX_DEMO_RECEIVER_URL: http://receiver:9090
+      RETRYX_DEMO_SIGNING_SECRET: whsec_demo_only_shared_secret_change_me
+      # The receiver is reachable by service name on a private network, which
+      # resolves to a private address — so it has to be exempted from the SSRF
+      # checks. In production this list is empty and the prod profile enforces it.
+      RETRYX_SSRF_ALLOW_HOSTS: receiver,localhost,127.0.0.1,host.docker.internal
+      RETRYX_CORS_ORIGINS: http://localhost:5173,http://localhost:4173
+      # Development key, published in this repository. Replace it anywhere real:
+      #   openssl rand -base64 32
+      RETRYX_ENCRYPTION_KEY: ZGV2LW9ubHkta2V5LWRvLW5vdC11c2UtaW4tcHJvZCE=
+      TZ: UTC
+    ports:
+      - '8080:8080'
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://localhost:8080/actuator/health']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  worker:
+    build:
+      context: ./backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+      api:
+        condition: service_started
+    environment:
+      RETRYX_DB_URL: jdbc:postgresql://postgres:5432/retryx
+      RETRYX_DB_USER: retryx
+      RETRYX_DB_PASSWORD: retryx
+      RETRYX_WORKER_ID: standalone-worker
+      # No seeding from this one — the api container owns that.
+      RETRYX_DEMO_ENABLED: 'false'
+      RETRYX_SSRF_ALLOW_HOSTS: receiver,localhost,127.0.0.1,host.docker.internal
+      RETRYX_ENCRYPTION_KEY: ZGV2LW9ubHkta2V5LWRvLW5vdC11c2UtaW4tcHJvZCE=
+      # Different port so the two containers' embedded Tomcats do not clash if
+      # someone maps them. This node is a worker; nothing calls its API.
+      RETRYX_PORT: 8081
+      TZ: UTC
+
+  dashboard:
+    build:
+      context: ./frontend
+      args:
+        # Baked at build time: Vite inlines env vars, so this cannot be changed
+        # by restarting the container.
+        VITE_BUILD_MODE: production
+    depends_on:
+      api:
+        condition: service_started
+    ports:
+      - '5173:80'
+
+volumes:
+  retryx-pgdata:

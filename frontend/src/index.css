@@ -1,0 +1,251 @@
+@import 'tailwindcss';
+
+/* ============================================================================
+   Retryx — design tokens
+
+   Every colour in the application comes from a token here. No component uses a
+   `dark:` variant, because there is nothing to vary: the tokens themselves swap
+   on [data-theme], so light mode is the same code path rather than a second set
+   of utilities maintained in parallel.
+
+   Palette reasoning:
+
+   The base is a deep teal-ink, not a tinted black — it gives the four status
+   colours a cool ground to sit on without competing with any of them.
+
+   Amber is both the brand colour and the pending/retrying status. That looks
+   like a collision and is actually the point: this product exists to retry, so
+   the colour of waiting is the colour of the product. The ambiguity is resolved
+   structurally rather than chromatically — status appears as a left bar and a
+   dot, never as a filled button, and the only amber-filled control in the
+   interface is "Send again", which is the retry action itself.
+   ============================================================================ */
+
+:root,
+[data-theme='dark'] {
+  /* Fonts are plain variables, not only @theme entries. `@theme inline`
+     substitutes its values straight into generated utilities and does NOT emit
+     the custom property, so a `var(--font-sans)` written by hand in @layer base
+     would resolve to nothing. Declaring them here and pointing @theme at them
+     means both the utilities and the hand-written rules below work. */
+  --rx-font-sans: 'IBM Plex Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --rx-font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+
+  --rx-bg: #0a1416;
+  --rx-surface: #0f1d20;
+  --rx-surface-2: #14272b;
+  --rx-surface-3: #1a3236;
+  --rx-line: #1f383c;
+  --rx-line-soft: #16292d;
+
+  --rx-text: #e6f0f0;
+  --rx-text-dim: #9bb0b2;
+  --rx-text-mute: #6b8286;
+
+  --rx-amber: #ffb347;
+  --rx-amber-soft: #3a2a12;
+  --rx-emerald: #3dd68c;
+  --rx-emerald-soft: #0f2e22;
+  --rx-sky: #56ccf2;
+  --rx-sky-soft: #0d2a35;
+  --rx-rose: #ff6b81;
+  --rx-rose-soft: #35151d;
+
+  --rx-shadow: 0 1px 0 0 rgb(255 255 255 / 0.03) inset;
+}
+
+[data-theme='light'] {
+  --rx-bg: #f5f8f8;
+  --rx-surface: #ffffff;
+  --rx-surface-2: #eef3f3;
+  --rx-surface-3: #e3eaea;
+  --rx-line: #d2dede;
+  --rx-line-soft: #e4ecec;
+
+  --rx-text: #081214;
+  --rx-text-dim: #3e5558;
+  --rx-text-mute: #647c80;
+
+  /* Darkened so the same semantics stay readable on white. The hues are
+     unchanged; only the lightness moves. */
+  --rx-amber: #a85f09;
+  --rx-amber-soft: #fdf1dd;
+  --rx-emerald: #0a7049;
+  --rx-emerald-soft: #e0f3ea;
+  --rx-sky: #0a6688;
+  --rx-sky-soft: #e0f0f6;
+  --rx-rose: #bc1631;
+  --rx-rose-soft: #fde8eb;
+
+  --rx-shadow: 0 1px 2px 0 rgb(8 18 20 / 0.06);
+}
+
+/* Bridge the runtime variables into Tailwind utilities. `inline` emits
+   `var(--rx-…)` directly in each utility, so a theme switch repaints without
+   Tailwind needing to know themes exist. */
+@theme inline {
+  --color-bg: var(--rx-bg);
+  --color-surface: var(--rx-surface);
+  --color-surface-2: var(--rx-surface-2);
+  --color-surface-3: var(--rx-surface-3);
+  --color-line: var(--rx-line);
+  --color-line-soft: var(--rx-line-soft);
+
+  --color-ink: var(--rx-text);
+  --color-dim: var(--rx-text-dim);
+  --color-mute: var(--rx-text-mute);
+
+  --color-amber: var(--rx-amber);
+  --color-amber-soft: var(--rx-amber-soft);
+  --color-emerald: var(--rx-emerald);
+  --color-emerald-soft: var(--rx-emerald-soft);
+  --color-sky: var(--rx-sky);
+  --color-sky-soft: var(--rx-sky-soft);
+  --color-rose: var(--rx-rose);
+  --color-rose-soft: var(--rx-rose-soft);
+
+  --font-sans: var(--rx-font-sans);
+  --font-mono: var(--rx-font-mono);
+}
+
+/* ============================================================================
+   Base
+   ============================================================================ */
+
+@layer base {
+  * {
+    border-color: var(--rx-line);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    background: var(--rx-bg);
+    color: var(--rx-text);
+    font-family: var(--rx-font-sans);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Numbers in tables and readouts must line up column to column. Plex ships
+     real tabular figures; without this they are proportional and every column
+     of durations looks ragged. */
+  table,
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  h1,
+  h2,
+  h3 {
+    margin: 0;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+  }
+
+  code,
+  pre,
+  .mono {
+    font-family: var(--rx-font-mono);
+    font-feature-settings: 'zero' 1; /* slashed zero: 0 and O are different characters */
+  }
+
+  button {
+    font: inherit;
+    cursor: pointer;
+  }
+
+  input,
+  select,
+  textarea {
+    font: inherit;
+    color: inherit;
+  }
+
+  /* One focus treatment everywhere, and it is always visible. Removing outlines
+     without replacing them makes the whole interface unusable by keyboard, which
+     is an accessibility failure that no amount of polish elsewhere makes up for. */
+  :focus-visible {
+    outline: 2px solid var(--rx-amber);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  ::selection {
+    background: var(--rx-amber);
+    color: var(--rx-bg);
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--rx-surface-3);
+    border: 2px solid var(--rx-bg);
+    border-radius: 6px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--rx-text-mute);
+  }
+}
+
+/* ============================================================================
+   The one piece of ambient motion: a live-state pulse.
+
+   It is here because it reports something real — a delivery that is in flight
+   right now — and it stops when the delivery does. Decorative entrance
+   animations on every card are the generic default and are deliberately absent.
+   ============================================================================ */
+
+@keyframes rx-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.35;
+    transform: scale(0.8);
+  }
+}
+
+.rx-live {
+  animation: rx-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes rx-sweep {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(300%);
+  }
+}
+
+.rx-sweep::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  width: 33%;
+  background: linear-gradient(90deg, transparent, var(--rx-surface-3), transparent);
+  animation: rx-sweep 1.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

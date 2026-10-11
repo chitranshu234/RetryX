@@ -1,0 +1,44 @@
+# ============================================================================
+#  Retryx reference receiver
+# ============================================================================
+#  A webhook consumer that verifies signatures and can be told to fail, so the
+#  retry engine has something real to retry against.
+# ============================================================================
+
+spring:
+  application:
+    name: retryx-receiver
+  jackson:
+    default-property-inclusion: non_null
+
+server:
+  port: ${RECEIVER_PORT:9090}
+  # Must comfortably exceed the artificial latency on /hooks/slow, or Tomcat
+  # gives up before the handler does and the test measures the wrong timeout.
+  tomcat:
+    threads:
+      max: 100
+
+receiver:
+  # Shared secret for signature verification. Must match the endpoint's secret
+  # in Retryx; the demo seed data uses this exact value.
+  # Leave blank to accept everything unverified.
+  signing-secret: ${RECEIVER_SIGNING_SECRET:whsec_demo_only_shared_secret_change_me}
+
+  # Reject anything older than this. The replay window.
+  signature-tolerance-seconds: ${RECEIVER_SIGNATURE_TOLERANCE:300}
+
+  # Return 400 when a signature does not verify. 400 (not 500) on purpose: a bad
+  # signature will not become good on retry, so the sender should stop, not loop.
+  reject-invalid-signature: ${RECEIVER_REJECT_INVALID_SIGNATURE:true}
+
+  # Probability that POST /hooks answers 500. Raise it for load tests —
+  # `RECEIVER_FAILURE_RATE=0.2` is the figure the README quotes.
+  failure-rate: ${RECEIVER_FAILURE_RATE:0.0}
+
+  # Artificial think time before responding, in milliseconds.
+  latency-ms: ${RECEIVER_LATENCY_MS:0}
+
+logging:
+  level:
+    dev.retryx.receiver: ${RECEIVER_LOG_LEVEL:INFO}

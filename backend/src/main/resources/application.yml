@@ -1,0 +1,191 @@
+# ============================================================================
+#  Retryx — application configuration
+# ============================================================================
+#  Everything a deployment needs to change is an environment variable with a
+#  sane local default, so `mvn spring-boot:run` works against docker-compose
+#  Postgres with no extra setup.
+# ============================================================================
+
+spring:
+  application:
+    name: retryx-api
+
+  datasource:
+    url: ${RETRYX_DB_URL:jdbc:postgresql://localhost:5432/retryx}
+    username: ${RETRYX_DB_USER:retryx}
+    password: ${RETRYX_DB_PASSWORD:retryx}
+    hikari:
+      # Pool must comfortably exceed worker concurrency, or the workers
+      # starve the web tier of connections under load.
+      maximum-pool-size: ${RETRYX_DB_POOL_SIZE:20}
+      minimum-idle: 4
+      connection-timeout: 10000
+      pool-name: retryx-pool
+
+  jpa:
+    open-in-view: false        # never hold a connection for view rendering
+    hibernate:
+      # Flyway owns the schema; Hibernate must not touch it.
+      #
+      # Not `validate`, deliberately. Validation compares Hibernate's expected
+      # column types against the live schema, and this schema uses Postgres
+      # `text` where Hibernate expects `varchar(255)` for every String field.
+      # They are the same type to Postgres and different strings to the
+      # validator, so `validate` fails at startup on a schema that is correct.
+      # The mapping is checked by the integration tests instead, which run every
+      # query against the real migrated schema.
+      ddl-auto: none
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 50
+          time_zone: UTC
+        order_inserts: true
+        order_updates: true
+    show-sql: false
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+  jackson:
+    default-property-inclusion: non_null
+    serialization:
+      write-dates-as-timestamps: false
+
+  threads:
+    virtual:
+      enabled: false           # see DEVELOPER.md — JDBC pool is the bottleneck
+
+server:
+  port: ${RETRYX_PORT:8080}
+  shutdown: graceful           # let in-flight deliveries finish on SIGTERM
+  error:
+    include-message: always
+    include-stacktrace: never
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when_authorized
+
+logging:
+  level:
+    dev.retryx: ${RETRYX_LOG_LEVEL:INFO}
+    # Uncomment to watch the claim query run:
+    # org.springframework.jdbc.core.JdbcTemplate: DEBUG
+
+# ============================================================================
+#  Retryx-specific settings
+# ============================================================================
+retryx:
+
+  # ---- background delivery workers -----------------------------------------
+  worker:
+    enabled: ${RETRYX_WORKER_ENABLED:true}
+    # Stable-ish identity written into deliveries.locked_by and
+    # delivery_attempts.worker_id. Set it per container so you can tell which
+    # worker sent what. Blank => "<hostname>-<random8>".
+    id: ${RETRYX_WORKER_ID:}
+    # Let the process finish starting before it starts claiming work.
+    initial-delay-ms: ${RETRYX_WORKER_INITIAL_DELAY_MS:2000}
+    # How often to ask the database for work. The floor on delivery latency
+    # for an already-due row.
+    poll-interval-ms: ${RETRYX_WORKER_POLL_MS:500}
+    # Rows claimed per poll. Bigger batch = fewer round trips, but a crash
+    # loses the whole lease window for that many rows.
+    batch-size: ${RETRYX_WORKER_BATCH_SIZE:25}
+    # In-flight HTTP sends per worker process.
+    concurrency: ${RETRYX_WORKER_CONCURRENCY:16}
+    # Lease length. Must exceed (connect + read timeout) with margin, or a
+    # slow-but-alive receiver gets its delivery stolen and double-sent.
+    lease-seconds: ${RETRYX_WORKER_LEASE_SECONDS:60}
+
+  # ---- stale claim recovery -------------------------------------------------
+  reaper:
+    enabled: ${RETRYX_REAPER_ENABLED:true}
+    initial-delay-ms: ${RETRYX_REAPER_INITIAL_DELAY_MS:5000}
+    # Recovery time for a crashed worker's rows is bounded by
+    #   lease-seconds + interval-ms
+    interval-ms: ${RETRYX_REAPER_INTERVAL_MS:5000}
+    batch-size: 500
+
+  # ---- retry policy ---------------------------------------------------------
+  retry:
+    max-attempts: ${RETRYX_MAX_ATTEMPTS:6}
+    base-delay-seconds: ${RETRYX_BASE_DELAY_SECONDS:2}
+    multiplier: ${RETRYX_BACKOFF_MULTIPLIER:2.0}
+    max-delay-seconds: ${RETRYX_MAX_DELAY_SECONDS:3600}
+    # FULL   -> random(0, exp)        maximum spread, lowest collision odds
+    # EQUAL  -> exp/2 + random(0,exp/2)  keeps ordering roughly intact
+    # NONE   -> exp                   deterministic; tests and demos only
+    jitter: ${RETRYX_JITTER:EQUAL}
+
+  # ---- outbound HTTP --------------------------------------------------------
+  http:
+    connect-timeout-ms: ${RETRYX_HTTP_CONNECT_TIMEOUT_MS:3000}
+    read-timeout-ms: ${RETRYX_HTTP_READ_TIMEOUT_MS:10000}
+    # Bytes of the receiver's response body we keep for debugging.
+    max-response-snippet-bytes: 2048
+    user-agent: Retryx/1.0
+
+  # ---- signing --------------------------------------------------------------
+  signing:
+    # Receivers should reject anything older than this. Documented for them;
+    # Retryx itself only emits the timestamp.
+    tolerance-seconds: 300
+
+  # ---- payload encryption at rest ------------------------------------------
+  crypto:
+    # 32 raw bytes, base64-encoded => AES-256-GCM.
+    # The default below is a PUBLIC, WELL-KNOWN development key. The app
+    # refuses to start with it when a 'prod' profile is active.
+    encryption-key: ${RETRYX_ENCRYPTION_KEY:ZGV2LW9ubHkta2V5LWRvLW5vdC11c2UtaW4tcHJvZCE=}
+
+  # ---- SSRF protection ------------------------------------------------------
+  ssrf:
+    enabled: ${RETRYX_SSRF_ENABLED:true}
+    # Require TLS. Turned off for local development so the bundled receiver
+    # on plain http works.
+    require-https: ${RETRYX_REQUIRE_HTTPS:false}
+    allowed-ports: ${RETRYX_ALLOWED_PORTS:80,443,8080,9090,8443}
+    # DEV ONLY. Hosts here skip private-IP checks. Needed so the demo can
+    # deliver to the bundled receiver. Must be empty in production.
+    allow-hosts: ${RETRYX_SSRF_ALLOW_HOSTS:localhost,127.0.0.1,receiver,host.docker.internal}
+
+  # ---- dashboard / CORS -----------------------------------------------------
+  cors:
+    allowed-origins: ${RETRYX_CORS_ORIGINS:http://localhost:5173,http://localhost:4173,http://localhost:3000}
+
+  # ---- demo bootstrap -------------------------------------------------------
+  demo:
+    # Seeds one owner, one API key and two endpoints pointing at the bundled
+    # receiver, so `docker compose up` gives you something to click on.
+    enabled: ${RETRYX_DEMO_ENABLED:true}
+    owner-id: demo
+    api-key: ${RETRYX_DEMO_API_KEY:rtx_sk_demo_0000000000000000000000}
+    receiver-base-url: ${RETRYX_DEMO_RECEIVER_URL:http://localhost:9090}
+    # Fixed so the bundled receiver can verify signatures with the same value.
+    # Never do this for a real endpoint: generated secrets are the default for a reason.
+    signing-secret: ${RETRYX_DEMO_SIGNING_SECRET:whsec_demo_only_shared_secret_change_me}
+
+---
+# ============================================================================
+#  prod profile — fail fast on insecure defaults
+# ============================================================================
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+retryx:
+  ssrf:
+    require-https: true
+    allow-hosts: ""
+  demo:
+    enabled: false
