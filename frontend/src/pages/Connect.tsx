@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { api, apiKeyStore } from '../lib/api'
 import { PrimaryButton } from '../components/Primitives'
 import { ThemeToggle } from '../components/ThemeToggle'
+import { Footer } from '../components/Footer'
 
 /** The key seeded by `docker compose up`, offered so the demo is one click rather than a hunt. */
 const DEMO_KEY = 'rtx_sk_demo_0000000000000000000000'
@@ -54,25 +55,13 @@ export function Connect({ onConnected }: { onConnected: () => void }) {
         <ThemeToggle />
       </div>
 
-      <div className="flex flex-1 items-center justify-center px-6 pb-24">
+      <div className="flex flex-1 items-center justify-center px-6 pb-12">
         <div className="w-full max-w-[420px]">
-          <div className="mb-7 flex items-center gap-3">
-            <svg
-              viewBox="0 0 24 24"
-              className="size-7 text-amber"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <path d="M21 12a9 9 0 1 1-3.2-6.9" strokeLinecap="round" />
-              <path d="M21 4.2V9.4h-5.2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            <div>
-              <h1 className="text-[22px] font-semibold tracking-tight">Retryx</h1>
-              <p className="text-[13px] text-dim">
-                Your events, delivered to the URLs you register — and retried until they arrive.
-              </p>
-            </div>
+          <div className="mb-7 flex flex-col items-start gap-3">
+            <img src="/logo.png" alt="RetryX" className="h-10 w-auto object-contain" />
+            <p className="text-[13px] text-dim">
+              Your events, delivered to the URLs you register — and retried until they arrive.
+            </p>
           </div>
 
           <form
@@ -128,6 +117,10 @@ export function Connect({ onConnected }: { onConnected: () => void }) {
             visits. Revoke it server-side if this machine is shared.
           </p>
         </div>
+      </div>
+
+      <div className="mx-auto w-full max-w-[640px] px-6 pb-6">
+        <Footer />
       </div>
     </div>
   )

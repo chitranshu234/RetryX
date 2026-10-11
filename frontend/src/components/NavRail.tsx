@@ -43,17 +43,12 @@ export function NavRail({ onDisconnect }: { onDisconnect: () => void }) {
 
 function Brand() {
   return (
-    <div className="flex items-center gap-2.5 border-b border-line px-4 py-3.5">
-      {/* The mark: an arrow that comes back round. Drawn rather than imported so it inherits the
-          accent token and recolours with the theme. */}
-      <svg viewBox="0 0 24 24" className="size-5 text-amber" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="M21 12a9 9 0 1 1-3.2-6.9" strokeLinecap="round" />
-        <path d="M21 4.2V9.4h-5.2" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-      <div className="leading-tight">
-        <div className="text-[15px] font-semibold tracking-tight">Retryx</div>
-        <div className="text-[11.5px] text-mute">Webhook delivery</div>
-      </div>
+    <div className="flex items-center border-b border-line px-4 py-3">
+      <img
+        src="/logo.png"
+        alt="RetryX"
+        className="h-8 w-auto max-w-full object-contain"
+      />
     </div>
   )
 }

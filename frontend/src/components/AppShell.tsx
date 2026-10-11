@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { NavRail } from './NavRail'
+import { Footer } from './Footer'
 
 /**
  * The page frame: rail on the left, scrolling content on the right.
@@ -39,7 +40,13 @@ export function AppShell({
           {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
         </header>
 
-        {children}
+        <div className="flex-1">
+          {children}
+        </div>
+
+        <div className="px-5 pb-6">
+          <Footer />
+        </div>
       </main>
     </div>
   )
