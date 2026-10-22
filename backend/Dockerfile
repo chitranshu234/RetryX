@@ -18,16 +18,16 @@ COPY src ./src
 RUN mvn -B -q clean package -DskipTests
 
 # ---- run ------------------------------------------------------------------
-FROM eclipse-temurin:21-jre-alpine
+FROM eclipse-temurin:21-jre-jammy
 WORKDIR /app
 
 # A non-root user, because a webhook sender makes outbound requests to
 # user-supplied URLs and is therefore exactly the kind of process you do not
 # want running as root when something goes wrong.
-RUN addgroup -S retryx && adduser -S retryx -G retryx
+RUN useradd -r -u 1001 retryx
 
 COPY --from=build /build/target/*.jar app.jar
-RUN chown retryx:retryx /app/app.jar
+RUN chown retryx /app/app.jar
 USER retryx
 
 EXPOSE 8080
@@ -35,6 +35,6 @@ EXPOSE 8080
 # MaxRAMPercentage rather than a fixed -Xmx: the container's memory limit is set
 # at deploy time, and a hardcoded heap either wastes the limit or gets the
 # process OOM-killed by the kernel with no Java stack trace to show for it.
-ENV JAVA_OPTS="-XX:MaxRAMPercentage=75 -XX:+UseSerialGC -Djava.security.egd=file:/dev/./urandom"
+ENV JAVA_OPTS="-XX:MaxRAMPercentage=75 -XX:+UseSerialGC -Djava.security.egd=file:/dev/./urandom -Djdk.tls.client.protocols=TLSv1.2,TLSv1.3"
 
 ENTRYPOINT ["sh", "-c", "exec java $JAVA_OPTS -jar app.jar"]
