@@ -185,7 +185,7 @@ spring:
 
 retryx:
   ssrf:
-    require-https: true
-    allow-hosts: ""
+    require-https: ${RETRYX_REQUIRE_HTTPS:true}
+    allow-hosts: ${RETRYX_SSRF_ALLOW_HOSTS:""}
   demo:
-    enabled: false
+    enabled: ${RETRYX_DEMO_ENABLED:false}
