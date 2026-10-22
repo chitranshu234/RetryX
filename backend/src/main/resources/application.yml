@@ -59,7 +59,7 @@ spring:
       enabled: false           # see DEVELOPER.md — JDBC pool is the bottleneck
 
 server:
-  port: ${RETRYX_PORT:8080}
+  port: ${PORT:${RETRYX_PORT:8080}}
   shutdown: graceful           # let in-flight deliveries finish on SIGTERM
   error:
     include-message: always

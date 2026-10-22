@@ -18,7 +18,9 @@ import type {
  * message, rather than as whatever shape that particular call site happened to produce.
  */
 
-const API_BASE = '/api'
+const envApiUrl = import.meta.env.VITE_API_URL
+const rawBase = envApiUrl ? String(envApiUrl).replace(/\/+$/, '') : '/api'
+const API_BASE = rawBase.endsWith('/api') ? rawBase : `${rawBase}/api`
 const STORAGE_KEY = 'retryx.apiKey'
 
 /** A failed request, carrying the server's message and status. */
